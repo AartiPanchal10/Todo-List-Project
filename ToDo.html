@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            background-color: black;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        input{
+            padding: 10px 50px;
+            border: none;
+            border-radius: 30px;
+            margin: 20px;
+            font-size: 17px;
+        }
+        button{
+            padding: 13px 23px;
+            border-color: rgba(222, 222, 37, 0.796);
+            border-radius: 30px;
+            background-color: rgba(222, 222, 37, 0.796);
+            color: black;
+            cursor: pointer;
+            font-size: 17px;
+        }
+        button:hover{
+            background-color: black;
+            color: rgba(222, 222, 37, 0.796);
+        }
+        section{
+            margin-top: 30px;
+        }
+        section .main_todo_div{
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        li {
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+    }
+    </style>
+</head>
+<body>
+    <h1>Todo List</h1>
+    <br>
+    <form>
+        <div>
+            <input type="text" id="inputvalue">
+            <button class="btn">Add Todo</button>
+        </div>
+            <section class="todo-list-elm">
+            </section>
+        </form>
+        <script>
+            const mainTodoElm = document.querySelector(".todo-list-elm");
+            const inputValue = document.getElementById("inputvalue");
+
+            const getTodoListFromLocal = () =>{
+                return JSON.parse(localStorage.getItem("ToDoList"));
+            };
+
+            const addTodoListLocalStorage = (localTodoLists) =>{
+                return localStorage.setItem("ToDoList", JSON.stringify(localTodoLists));
+            }
+
+            let localTodoLists = getTodoListFromLocal() || [];
+
+            // adding add to list dynamically
+            const addTodoDynamicElement = (currentElm) =>{
+                const divElm = document.createElement("div");
+                divElm.classList.add("main_todo_div");
+                divElm.innerHTML = `<li>${currentElm}</li> <button class="deleteBtn">Delete</button>`
+                mainTodoElm.append(divElm);
+            };
+
+            const addTodoList = (e) =>{
+                e.preventDefault();
+                
+                const todoListValue = inputValue.value.trim();
+
+                inputValue.value = "";
+
+                if(todoListValue !== "" && !localTodoLists.includes(todoListValue)){
+                localTodoLists.push(todoListValue);
+                localTodoLists = [...new Set(localTodoLists)];
+                console.log(localTodoLists);
+                localStorage.setItem("ToDoList", JSON.stringify(localTodoLists));
+
+                addTodoDynamicElement(todoListValue);
+            }
+        };
+
+            const showTodoList = () =>{
+                console.log(localTodoLists);
+                localTodoLists.forEach((currentElm) =>{
+                    addTodoDynamicElement(currentElm);
+                })
+            };
+
+            showTodoList();
+            
+            //remove the data
+            const removeTodoElm = (e) =>{
+                const todoToRemove = e.target;
+                let todoListContent = todoToRemove.previousElementSibling.innerText;
+                let parentElm = todoToRemove.parentElement;
+                console.log(todoListContent);
+
+                localTodoLists = localTodoLists.filter((currentTodo) =>{
+                    return currentTodo !== todoListContent.toLowerCase();
+                });
+
+                addTodoListLocalStorage(localTodoLists);
+                parentElm.remove();
+
+                console.log(localTodoLists);
+            }
+
+            mainTodoElm.addEventListener("click", (e) =>{
+                e.preventDefault();
+                if(e.target.classList.contains("deleteBtn")){
+                    removeTodoElm(e);
+                }
+            });
+
+            document.querySelector(".btn").addEventListener("click", (e) =>{
+                addTodoList(e);
+            });
+        </script>
+    
+</body>
+</html>
